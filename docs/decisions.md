@@ -2091,6 +2091,15 @@
 - 상태: 확정
 - 맥락: A에서 시장 휴장일을 한눈에 보고 싶다. 원자재(CME)뿐 아니라 투자 대상 ETP가 상장된 KRX·NYSE 휴일도 필요하다. CME 휴장 정보는 `trading_day`(거래일만 행)에만 있어 휴장일 이름이 남지 않고, 조기 마감 note는 직전 중간 정지 note와 합쳐진다. KRX·NYSE 휴장 데이터는 없고, KRX Open API에는 휴장일 엔드포인트가 없다.
 - 선택지: 데이터 (a) 서버 API 신설 (b) 앱에 JSON 번들. 저장 (c) 시장·날짜별 예외 일정 테이블 신설 (d) `trading_day`에서 휴장일을 역산(이름 없음)
-- 결정: (a)+(c). `calendar_exception(market, date, kind, at, note)`에 CME·KRX·NYSE 평일 예외 일정을 둔다. kind는 `CLOSED`·`HALT`(CME 공휴일 중간 정지, 정산 없음)·`EARLY_CLOSE`·`LATE_OPEN`(KRX 연초·수능일 개장 지연), at은 시장 현지 `HH:mm`이다. KRX·NYSE는 CME처럼 거래소 공지를 보고 `scripts/calendar/krx|nyse/<연도>.json`에 손으로 넣고 `calendar:import <연도> [cme|krx|nyse]`로 바꾼다. `GET /v1/calendar?from&to`가 범위의 예외 일정과 행이 없는 (시장, 연도)를 준다. 화면 A-a는 A title-bar [📅]로 들어가 이번 달~다다음 달 3개월을 세로로 보여 주고, 오늘은 기기 로컬 날짜, 세 시장을 한 달력에 색 점으로 구분한다.
+- 결정: (a)+(c). `calendar_exception(market, date, kind, at, note)`에 CME·KRX·NYSE 평일 예외 일정을 둔다. kind는 `CLOSED`·`HALT`(CME 공휴일 중간 정지, 정산 없음)·`EARLY_CLOSE`·`LATE_OPEN`(KRX 연초·수능일 개장 지연), at은 시장 현지 `HH:mm`이다. KRX·NYSE는 CME처럼 거래소 공지를 보고 `scripts/calendar/krx|nyse/<연도>.json`에 손으로 넣고 `calendar:import <연도> [cme|krx|nyse]`로 바꾼다. `GET /v1/calendar?from&to`가 범위의 예외 일정과 행이 없는 (시장, 연도)를 준다. 화면 A-a는 A title-bar [📅]로 들어가 이번 달~다다음 달 3개월을 세로로 보여 주고, 오늘은 기기 로컬 날짜, 세 시장을 한 달력에 색 점으로 구분한다. (2026-11-23 D-144: 일정 날짜·시각도 기기 로컬로 바꿈)
 - 근거: 서버 DB가 원본이면 새 연도 입력에 앱 OTA가 필요 없고 형제 앱도 같은 API를 쓴다. 이름을 보여 주려면 예외 일정을 그대로 저장해야 한다. 휴일이 없는 해는 없으므로 행 유무로 미입력을 알 수 있다.
 - 영향: shared `domain.ts`(`CALENDAR_MARKETS`·`CALENDAR_EXCEPTION_KINDS`)·`calendar.ts`·`queries.ts`·`contract.ts`, 서버 `calc/tradingCalendar.ts`(`buildCalendarExceptions`)·`db/importCalendar.ts`·`db/calendarStore.ts`·`api/calendar.ts`, 마이그레이션 0009, 앱 `features/calendar`·`components/CalendarHeaderButton`·`theme/tokens.ts`(`colors.market`·`today`). KRX 2027년은 공식 공지 전 잠정 데이터다.
+
+## D-144: 휴장 달력 일정을 기기 로컬 날짜·시각으로 표시
+- 날짜: 2026-11-23
+- 상태: 확정
+- 맥락: A-a의 칸·오늘은 기기 로컬 날짜인데, 예외 일정은 시장 현지 날짜·시각(CT/KST/ET)이라 한 화면에 기준이 섞였다. 예: NYSE 조기 마감 11/27 13:00 ET는 한국에서 11/28 03:00이다.
+- 선택지: (a) 시각 있는 일정(HALT·EARLY_CLOSE·LATE_OPEN)만 로컬로 옮김 (b) 휴장(CLOSED)도 그 시장 정규 개장 시각 기준으로 로컬로 옮김 (c) 칸은 시장 날짜, 문구 시각만 로컬
+- 결정: (b). 시각 있는 일정은 `at`(시장 현지)을, CLOSED는 정규 개장 시각(CME 전날 17:00 CT, KRX 09:00 KST, NYSE 09:30 ET)을 기기 로컬로 바꾼 날짜 칸에 두고, 문구 시각은 로컬 `HH:mm`으로 시간대 표기 없이 쓴다. 휴일 이름은 원문 그대로다. 시장 날짜가 하루 앞뒤로 움직이므로 앱은 `GET /v1/calendar` 범위를 앞뒤 하루씩 넓혀 받고, 화면 3개월 밖 연도의 `missing`은 안내하지 않는다. API·DB는 그대로 시장 현지 값이다.
+- 근거: 사용자 결정. 한 화면의 날짜 기준을 하나로 맞춘다. 개장 시각을 쓰면 "그 시장이 열렸을 순간"이 로컬로 어느 날인지가 된다(한국 기준 CME·NYSE 휴장일은 같은 날, CME 중간 정지·NYSE 조기 마감은 다음 날).
+- 영향: 앱 `features/calendar/localSchedule.ts`(신규)·`CalendarScreen.tsx`, `calendar.kinds` 문구(`{{tz}}` 제거, `calendar.timeZones` 삭제), screens.md A-a. 한 로컬 날짜에 같은 시장 일정이 둘 올 수 있다(한국 기준 CME 12/24 조기 마감과 12/25 휴장이 모두 12/25).

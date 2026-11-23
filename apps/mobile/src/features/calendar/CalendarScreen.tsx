@@ -1,5 +1,5 @@
 import { CALENDAR_MARKETS } from '@futureetp/shared';
-import type { Calendar, CalendarException } from '@futureetp/shared';
+import type { Calendar } from '@futureetp/shared';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +10,8 @@ import { formatTradeDate } from '@/lib/formatDateTime';
 import { colors, fontSize, radius, spacing } from '@/theme/tokens';
 import { monthCells, monthsFrom, monthsRange, localDateKey, weekdayOf } from './monthGrid';
 import type { CalendarMonth } from './monthGrid';
+import { deviceTimeZone, toLocalExceptions, widenRange } from './localSchedule';
+import type { LocalCalendarException } from './localSchedule';
 import { useMarketCalendar } from './useMarketCalendar';
 
 const MONTH_COUNT = 3;
@@ -30,22 +32,31 @@ const MONTH_KEYS = [
   'dec',
 ] as const;
 
-const isClosed = (e: CalendarException) => e.kind === 'CLOSED' || e.kind === 'HALT';
+const isClosed = (e: LocalCalendarException) => e.kind === 'CLOSED' || e.kind === 'HALT';
 
 // 휴장 달력(A title-bar [📅]). 이번 달~다다음 달을 세로로 놓고 CME·KRX·NYSE 예외 일정을 함께 표시한다.
-// 오늘은 기기 로컬 날짜다. 화면을 여는 동안 날짜가 바뀌어도 다시 열 때까지 그대로 둔다.
+// 오늘·일정 모두 기기 로컬 날짜·시각이다(D-144). 화면을 여는 동안 날짜가 바뀌어도 다시 열 때까지 그대로 둔다.
 export function CalendarScreen() {
   const { t } = useTranslation();
   const [today] = useState(() => new Date());
   const months = monthsFrom(today, MONTH_COUNT);
-  const { from, to } = monthsRange(months);
+  const range = monthsRange(months);
+  // 로컬로 옮기면 시장 날짜가 하루 앞뒤로 움직이므로 하루씩 넓혀 받는다
+  const { from, to } = widenRange(range);
   const query = useMarketCalendar(from, to);
 
   return (
     <View style={styles.container}>
       <ScreenHeader title={t('calendar.title')} />
       <QueryStateView query={query}>
-        {(data) => <CalendarBody data={data} months={months} todayKey={localDateKey(today)} />}
+        {(data) => (
+          <CalendarBody
+            data={data}
+            months={months}
+            years={[Number(range.from.slice(0, 4)), Number(range.to.slice(0, 4))]}
+            todayKey={localDateKey(today)}
+          />
+        )}
       </QueryStateView>
     </View>
   );
@@ -54,23 +65,29 @@ export function CalendarScreen() {
 function CalendarBody({
   data,
   months,
+  years: [firstYear, lastYear],
   todayKey,
 }: {
   data: Calendar;
   months: CalendarMonth[];
+  years: [number, number];
   todayKey: string;
 }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const byDate = new Map<string, CalendarException[]>();
-  for (const e of data.exceptions) byDate.set(e.date, [...(byDate.get(e.date) ?? []), e]);
+  const byDate = new Map<string, LocalCalendarException[]>();
+  for (const e of toLocalExceptions(data.exceptions, deviceTimeZone())) {
+    byDate.set(e.localDate, [...(byDate.get(e.localDate) ?? []), e]);
+  }
+  // 넓혀 받은 하루 때문에 화면 밖 연도의 미입력 안내가 섞이지 않게 거른다
+  const missing = data.missing.filter(({ year }) => year >= firstYear && year <= lastYear);
 
   return (
     <ScrollView
       contentContainerStyle={[styles.content, { paddingBottom: spacing.xl + insets.bottom }]}
     >
       <Legend />
-      {data.missing.map(({ market, year }) => (
+      {missing.map(({ market, year }) => (
         <Text key={`${market}-${year}`} style={styles.missing}>
           {t('calendar.missing', { market: t(`calendar.markets.${market}`), year })}
         </Text>
@@ -120,7 +137,7 @@ function MonthView({
   todayKey,
 }: {
   month: CalendarMonth;
-  byDate: Map<string, CalendarException[]>;
+  byDate: Map<string, LocalCalendarException[]>;
   todayKey: string;
 }) {
   const { t } = useTranslation();
@@ -181,7 +198,7 @@ function DayCell({
 }: {
   date: string;
   monthName: string;
-  exceptions: CalendarException[];
+  exceptions: LocalCalendarException[];
   isToday: boolean;
 }) {
   const { t } = useTranslation();
@@ -202,7 +219,7 @@ function DayCell({
       <View style={styles.dots}>
         {exceptions.map((e) => (
           <View
-            key={e.market}
+            key={`${e.market}-${e.date}`}
             style={[
               styles.dot,
               isClosed(e)
@@ -218,16 +235,14 @@ function DayCell({
 
 type T = ReturnType<typeof useTranslation>['t'];
 
-function kindText(t: T, e: CalendarException): string {
-  const tz = t(`calendar.timeZones.${e.market}`);
-  return t(`calendar.kinds.${e.kind}`, { time: e.at ?? '', tz });
-}
+const kindText = (t: T, e: LocalCalendarException): string =>
+  t(`calendar.kinds.${e.kind}`, { time: e.localTime ?? '' });
 
-function ExceptionLine({ exception: e }: { exception: CalendarException }) {
+function ExceptionLine({ exception: e }: { exception: LocalCalendarException }) {
   const { t } = useTranslation();
   const date = t('calendar.listDate', {
-    date: formatTradeDate(e.date),
-    weekday: t(`calendar.weekdays.${WEEKDAY_KEYS[weekdayOf(e.date)]!}`),
+    date: formatTradeDate(e.localDate),
+    weekday: t(`calendar.weekdays.${WEEKDAY_KEYS[weekdayOf(e.localDate)]!}`),
   });
 
   return (
