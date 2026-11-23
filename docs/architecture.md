@@ -210,7 +210,7 @@ type Freshness = {
 - 계약 공유: 네이티브 앱은 TS 스키마를 import할 수 없어 `packages/shared/contract/`의 JSON Schema 파일을 읽는다(D-142). `api.json`(기본 경로·헤더·봉투·에러 코드와 HTTP 상태·엔드포인트별 query·body·data 스키마 경로)과 `schemas/<이름>.json`(JSON Schema 2020-12)이다. 생성은 `src/contract.ts`, 다시 만들기는 `npm run contract:export`, 어긋나면 `contract.test.ts`가 실패한다(check). refine(날짜 순서·값 중복 없음 등)은 JSON Schema로 표현되지 않아 빠지므로 그 규칙은 `packages/shared/src/*.ts` 주석과 이 문서를 본다.
 - 앱 ID: 네 앱 모두 `io.github.seyoon.futureetp`(dev `.dev`)다. FCM `google-services.json`과 APNs topic을 그대로 함께 쓰므로 서버 푸시 설정은 바꾸지 않는다. 한 기기에는 한 앱만 설치할 수 있고, 앱을 바꿔 설치하면 새 `X-Device-Id`로 새 기기 행이 생긴다(설정은 기기별이라 다시 맞춰야 함, D-120).
 - 클라이언트 구분: `PUT /v1/devices`의 `appVersion`에 접두사를 붙인다(`fl-1.0.0`·`ios-1.0.0`·`aos-1.0.0`, RN은 접두사 없음). 64자 문자열이라 스키마 변경이 없다.
-- 변경 전파: API·shared 스키마·에러 코드·화면 동작·공통 규칙(레이어 등)을 바꾸면 세 형제 저장소의 `TODO.md`에 따라갈 항목을 적는다. 커밋 직후 `.claude/hooks/sibling-sync-reminder.sh`가 해당 파일 변경을 알려 준다.
+- 변경 전파: API·shared 스키마·에러 코드·화면 동작·공통 규칙(레이어 등)을 바꾸면 세 형제 저장소의 `TODO.md`에 따라갈 항목을 적는다. 문서는 그대로 두고 RN 앱 코드만 고친 버그 수정·동작 변경도 형제 앱에 같은 문제가 있을 수 있으면 적는다. 커밋 직후 `.claude/hooks/sibling-sync-reminder.sh`가 해당 파일 변경과, `apps/mobile/src`를 바꾼 `feat`·`fix` 커밋(테스트 파일 제외)을 알려 준다. 형제 저장소는 놓친 항목을 찾으려고 `TODO.md`에 마지막으로 대조한 이 저장소 커밋을 적어 둔다.
 
 ## 환경 설정 분리 (dev / prod)
 
