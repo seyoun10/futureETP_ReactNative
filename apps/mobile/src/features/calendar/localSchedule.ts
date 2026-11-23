@@ -22,6 +22,8 @@ export type LocalCalendarException = CalendarException & {
   localDate: string;
   // 기기 로컬 'HH:mm'. at이 없는 휴장은 null
   localTime: string | null;
+  // 정렬 기준 UTC 시각(ms). at, 휴장은 정규 개장 시각
+  instant: number;
 };
 
 const MINUTE = 60 * 1000;
@@ -64,32 +66,29 @@ export const deviceTimeZone = (): string => Intl.DateTimeFormat().resolvedOption
 export function toLocalException(e: CalendarException, timeZone: string): LocalCalendarException {
   const marketZone = MARKET_TIME_ZONES[e.market];
   if (e.at !== null) {
-    const local = wallClock(zonedTimeToInstant(e.date, e.at, marketZone), timeZone);
-    return { ...e, localDate: local.date, localTime: local.time };
+    const instant = zonedTimeToInstant(e.date, e.at, marketZone);
+    const local = wallClock(instant, timeZone);
+    return { ...e, localDate: local.date, localTime: local.time, instant };
   }
   const open = REGULAR_OPEN[e.market];
   const openDate = new Date(Date.parse(`${e.date}T00:00:00Z`) + open.dayOffset * DAY)
     .toISOString()
     .slice(0, 10);
-  const local = wallClock(zonedTimeToInstant(openDate, open.at, marketZone), timeZone);
-  return { ...e, localDate: local.date, localTime: null };
+  const instant = zonedTimeToInstant(openDate, open.at, marketZone);
+  const local = wallClock(instant, timeZone);
+  return { ...e, localDate: local.date, localTime: null, instant };
 }
 
 const marketOrder = (m: CalendarMarket) => CALENDAR_MARKETS.indexOf(m);
 
-// 로컬 날짜순, 같은 날은 시장 순·시장 날짜순
+// 로컬 시각순(휴장은 정규 개장 시각), 같은 시각은 시장 순
 export function toLocalExceptions(
   exceptions: readonly CalendarException[],
   timeZone: string,
 ): LocalCalendarException[] {
   return exceptions
     .map((e) => toLocalException(e, timeZone))
-    .sort(
-      (a, b) =>
-        a.localDate.localeCompare(b.localDate) ||
-        marketOrder(a.market) - marketOrder(b.market) ||
-        a.date.localeCompare(b.date),
-    );
+    .sort((a, b) => a.instant - b.instant || marketOrder(a.market) - marketOrder(b.market));
 }
 
 // 로컬 날짜로 옮기면 시장 날짜가 하루 앞뒤로 움직이므로 조회 범위를 하루씩 넓힌다

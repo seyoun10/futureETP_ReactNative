@@ -36,6 +36,13 @@ const DATA: Calendar = {
       at: '13:00',
       note: 'Day after Thanksgiving',
     },
+    {
+      market: 'CME',
+      date: '2026-11-27',
+      kind: 'EARLY_CLOSE',
+      at: '13:45',
+      note: 'Day after Thanksgiving',
+    },
     { market: 'KRX', date: '2026-12-31', kind: 'CLOSED', at: null, note: '연말 휴장' },
     { market: 'KRX', date: '2027-01-04', kind: 'LATE_OPEN', at: '10:00', note: '연초 개장식' },
   ],
@@ -78,7 +85,9 @@ describe('휴장 달력', () => {
     // NYSE 휴장은 개장 09:30 ET = 23:30 KST라 같은 날, CME 13:30 CT 중단은 다음 날 04:30 KST
     expect(screen.getByLabelText('11월 26일, NYSE 휴장')).toBeOnTheScreen();
     expect(screen.getByLabelText('11월 27일, CME 휴장 (04:30 거래 중단)')).toBeOnTheScreen();
-    expect(screen.getByLabelText('11월 28일, NYSE 조기 마감 03:00')).toBeOnTheScreen();
+    expect(
+      screen.getByLabelText('11월 28일, NYSE 조기 마감 03:00, CME 조기 마감 04:45'),
+    ).toBeOnTheScreen();
     expect(screen.getByLabelText('11월 20일')).toBeOnTheScreen();
   });
 
@@ -87,8 +96,12 @@ describe('휴장 달력', () => {
 
     const nov = await screen.findByTestId('calendar-month-2026-11');
     expect(within(nov).getAllByText('11/26 (목)')).toHaveLength(1);
-    expect(within(nov).getByText('11/28 (토)')).toBeOnTheScreen();
-    expect(within(nov).getByText(/Day after Thanksgiving/)).toBeOnTheScreen();
+    expect(within(nov).getAllByText('11/28 (토)')).toHaveLength(2);
+    // 같은 날은 시장 순이 아니라 로컬 시각순
+    const lines = within(nov).getAllByText(/^조기 마감 \d/);
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toHaveTextContent(/03:00/);
+    expect(lines[1]).toHaveTextContent(/04:45/);
     const jan = screen.getByTestId('calendar-month-2027-1');
     expect(within(jan).getByText(/개장 지연 10:00 ·/)).toBeOnTheScreen();
 

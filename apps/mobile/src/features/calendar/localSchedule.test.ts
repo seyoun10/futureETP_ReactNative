@@ -55,20 +55,37 @@ describe('localSchedule', () => {
     expect(toLocalException(krx, 'America/New_York').localDate).toBe('2026-12-30');
   });
 
-  it('로컬 날짜순, 같은 날은 시장 순으로 정렬한다', () => {
+  it('로컬 시각순으로 정렬하고, 휴장은 정규 개장 시각으로 센다', () => {
     const list = toLocalExceptions(
       [
+        ex({ market: 'KRX', date: '2026-12-25' }),
         ex({ market: 'CME', date: '2026-12-24', kind: 'EARLY_CLOSE', at: '12:45' }),
         ex({ market: 'NYSE', date: '2026-12-25' }),
         ex({ market: 'CME', date: '2026-12-25' }),
+        ex({ market: 'NYSE', date: '2026-12-24', kind: 'EARLY_CLOSE', at: '13:00' }),
       ],
       'Asia/Seoul',
     );
-    expect(list.map((e) => [e.localDate, e.market, e.date])).toEqual([
-      ['2026-12-25', 'CME', '2026-12-24'],
-      ['2026-12-25', 'CME', '2026-12-25'],
-      ['2026-12-25', 'NYSE', '2026-12-25'],
+    // 03:00 NYSE 조기 마감, 03:45 CME 조기 마감, 08:00 CME 개장, 09:00 KRX 개장, 23:30 NYSE 개장
+    expect(list.map((e) => [e.localDate, e.market, e.kind])).toEqual([
+      ['2026-12-25', 'NYSE', 'EARLY_CLOSE'],
+      ['2026-12-25', 'CME', 'EARLY_CLOSE'],
+      ['2026-12-25', 'CME', 'CLOSED'],
+      ['2026-12-25', 'KRX', 'CLOSED'],
+      ['2026-12-25', 'NYSE', 'CLOSED'],
     ]);
+  });
+
+  it('같은 시각이면 시장 순이다', () => {
+    // 13:30 CT = 14:30 ET
+    const list = toLocalExceptions(
+      [
+        ex({ market: 'NYSE', date: '2026-11-26', kind: 'EARLY_CLOSE', at: '14:30' }),
+        ex({ market: 'CME', date: '2026-11-26', kind: 'HALT', at: '13:30' }),
+      ],
+      'Asia/Seoul',
+    );
+    expect(list.map((e) => e.market)).toEqual(['CME', 'NYSE']);
   });
 
   it('조회 범위를 앞뒤 하루씩 넓힌다', () => {
