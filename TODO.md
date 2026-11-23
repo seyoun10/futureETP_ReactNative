@@ -80,7 +80,7 @@
   - [x] 2026-11-03: prod 변형 Release를 Personal Team으로 iPhone 14 Pro·16 Pro Max에 설치·실행(푸시 권한 빼고, 7일 만료). 다른 세션과 겹치지 않게 별도 git worktree에서 prebuild·빌드. 16 Pro Max는 `-allowProvisioningDeviceRegistration`으로 팀에 등록 (D-039 보충)
     - [x] 두 기기에서 접근 키 QR 등록 (2026-11-03)
     - [ ] 두 기기에서 운영 데이터 표시·카메라 권한 문구 확인
-      - 2026-11-23: 14 Pro의 prod 앱이 Personal Team 7일 만료로 열리지 않음("더 이상 사용할 수 없음"). 다시 설치해야 확인 가능
+      - 2026-11-23: 14 Pro의 prod 앱이 Personal Team 7일 만료로 열리지 않아 `b2191c0`으로 다시 설치(별도 worktree, D-039 보충 순서). 접근 키 유지, A 목록 운영 값(11/23 15:00 기준·장중·등락 색·CL 🔔)·C-a CL(한국형 기준값·rare 밴드) 정상. 남은 것: 16 Pro Max(미연결) 운영 데이터, 카메라 권한 문구(앱 삭제 후 재설치 때)
 
 - [ ] KRX 2027년 휴장일 공식 공지(보통 12월 말) 뒤 `scripts/calendar/krx/2027.json`을 맞추고(잠정 표시 지우기, 수능일 개장 지연 추가) dev·prod 다시 import
   - 2027 KRX가 `missing`인 동안 앱은 달력을 5분만 캐시하므로, import 뒤 화면 재진입·앱 복귀로 반영된다(재시작 불필요). 반영 확인만 한다
