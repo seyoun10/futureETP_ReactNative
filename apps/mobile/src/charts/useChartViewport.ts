@@ -230,10 +230,13 @@ export function useChartViewport({
   // 십자선이 있는 동안은 드래그를 끄고 길게 누르기 없이 끌면 바로 십자선이 따라온다(pressConfig)
   const crosshairVisible = useSharedValue(false);
   const [crosshairShown, setCrosshairShown] = useState(false);
+  // 이번 터치에서 핀치가 시작됐는지. victory 십자선 Pan(길게 누르기)은 손가락 수 제한이 없고 iOS에서 핀치 중에도
+  // 취소되지 않아, 두 손가락으로 핀치하다 잠시 멈추면 십자선이 켜졌다. 새 터치(hideCrosshair 탭 시작)에서 끈다
+  const pinchedInTouch = useSharedValue(false);
   useAnimatedReaction(
     () => press.isActive.get(),
     (active) => {
-      if (active && !crosshairVisible.get()) {
+      if (active && !crosshairVisible.get() && !pinchedInTouch.get()) {
         crosshairVisible.set(true);
         scheduleOnRN(setCrosshairShown, true);
       }
@@ -292,6 +295,7 @@ export function useChartViewport({
     };
     const hideCrosshair = Gesture.Tap()
       .enabled(!locked)
+      .onBegin(() => pinchedInTouch.set(false))
       .onEnd(() => {
         crosshairVisible.set(false);
         scheduleOnRN(setCrosshairShown, false);
@@ -302,6 +306,7 @@ export function useChartViewport({
       .onStart((e) => {
         const c = getTransformComponents(transform.matrix.get());
         pinchStart.set({ k: c.scaleX, tx: c.translateX, focalX: e.focalX });
+        pinchedInTouch.set(true);
         transform.zoomActive.set(true);
       })
       .onChange((e) => {
@@ -330,6 +335,7 @@ export function useChartViewport({
     fitted,
     geom,
     locked,
+    pinchedInTouch,
     pinchStart,
     rangeChanged,
     transform,
@@ -343,7 +349,7 @@ export function useChartViewport({
     void Haptics.selectionAsync();
   }, []);
   useAnimatedReaction(
-    () => (press.isActive.get() ? press.matchedIndex.get() : -1),
+    () => (press.isActive.get() && !pinchedInTouch.get() ? press.matchedIndex.get() : -1),
     (idx, prev) => {
       if (idx < 0 || idx === prev) return;
       const x = crosshair.x.get();

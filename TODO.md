@@ -63,6 +63,7 @@
       - 미러링 확인(2026-11-03, prod CL): 선 5개 색·끝값 라벨 쌓기·끌어 이동 뒤 끝값이 보이는 범위 마지막 값·길게 눌러 십자선 상세·C-a와 따로 기간 기억·목록 재진입 때 6M(D-107) 정상. 핀치는 기기 손으로
       - 미러링 재확인(2026-11-23, dev 빌드 CL): 같은 항목 정상(C-a 12M·C-c 6M 따로 기억, 십자선 상세에 롤 수익률). 남은 것은 핀치 확대(기기에서 직접)
       - [ ] 핀치 중 십자선이 켜지는 버그(2026-11-23, iPhone 14 Pro prod `646af4f`, C-c CL): 두 손가락으로 어느 정도 확대·축소한 뒤 손가락을 댄 채 있으면 십자선이 뜬다. victory 십자선 Pan(`activateAfterLongPress` 300ms, 손가락 수 제한 없음, `chartPressConfig`에 `maxPointers` 없음)이 `Gesture.Race`인데도 핀치에 취소되지 않는 것으로 보임. C-a도 같은 `useChartViewport`라 해당. 수정안: 핀치 `onStart`에서 `pinchedInTouch` 공유값을 켜고 새 터치(`hideCrosshair` Tap `onBegin`)에서 끄며, 십자선 켜기·봉 스냅 반응은 켜져 있으면 무시 + `useChartViewport.test.tsx` 회귀 테스트 → OTA → 기기 재확인, 형제 저장소 TODO 기록
+        - 수정(2026-11-23): 핀치를 시작한 터치에서 십자선·봉 스냅 무시(`pinchedInTouch`, D-087 보충) + 회귀 테스트. 남은 것: OTA 뒤 기기에서 핀치 후 멈춰도 십자선이 안 뜨는지, 손을 떼고 길게 누르면 뜨는지
 
 ### 5-8. 알림
 - [ ] 기기별 설정(D-120): 설정·알림 판정·기록을 installation ID(`X-Device-Id`) 기준 기기별로

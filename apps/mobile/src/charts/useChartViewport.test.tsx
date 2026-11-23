@@ -540,6 +540,34 @@ describe('useChartViewport 십자선', () => {
     expect(Haptics.selectionAsync).toHaveBeenCalledTimes(2);
   });
 
+  it('핀치를 시작한 터치에서는 길게 누르기가 활성화돼도 십자선을 켜지 않고, 새 터치에서는 켠다', async () => {
+    const v = await setup({ periodBars: 20 });
+    await v.report(G60);
+    const { tap, pinch } = v.gestures();
+    await act(() => tap.handlers.onBegin!());
+    await act(() => pinch.handlers.onStart!({ focalX: 300 }));
+    await act(() => pinch.handlers.onChange!({ scale: 1.5, focalX: 300 }));
+
+    // 두 손가락을 댄 채 멈추면 victory 십자선 Pan이 활성화된다
+    await showAt(v, 30);
+    expect(v.result.current.crosshair.visible.get()).toBe(false);
+    expect(v.result.current.detail).toBeNull();
+    expect(Haptics.selectionAsync).not.toHaveBeenCalled();
+    await showAt(v, 31);
+    expect(Haptics.selectionAsync).not.toHaveBeenCalled();
+
+    // 손을 다 떼고 새로 길게 누르면 평소대로
+    await act(() => pinch.handlers.onEnd!());
+    await act(() => pinch.handlers.onFinalize!());
+    press.isActive.set(false);
+    await v.react();
+    await act(() => v.gestures().tap.handlers.onBegin!());
+    await showAt(v, 32);
+    expect(v.result.current.crosshair.visible.get()).toBe(true);
+    expect(v.result.current.detail?.index).toBe(32);
+    expect(Haptics.selectionAsync).toHaveBeenCalledTimes(1);
+  });
+
   it('누르지 않은 상태의 순번은 무시한다', async () => {
     const v = await setup({ periodBars: 20 });
     press.matchedIndex.set(3);
