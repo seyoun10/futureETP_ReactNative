@@ -13,9 +13,10 @@
   - [x] QR 읽기(`expo-camera`, 권한 거부·카메라 없음 안내) (2026-10-27, D-078)
     - [ ] 재빌드 후 Android 기기에서 권한 요청·QR 읽기 확인
       - 에뮬레이터 확인(2026-11-17, Pixel_API_36, prod release APK `dc6ec27`): 권한 요청 대화상자, 거부하면 "카메라를 쓸 수 없음" 안내 줄, 다시 눌러 허용하면 카메라 열림(CameraX 세션 시작). QR 읽기는 에뮬레이터 카메라로 못 봐서 실기기 남음
-    - [ ] iOS 재빌드 뒤 실기기에서 권한 문구(기기 언어 ko·en, `locales`)·QR 읽기 확인
+    - [x] iOS 재빌드 뒤 실기기에서 권한 문구(기기 언어 ko·en, `locales`)·QR 읽기 확인 (2026-11-23)
       - QR 읽기 확인(2026-10-31, iPhone 14 Pro). 권한 문구는 이미 허용된 기기라 못 봄: 앱 삭제 후 재설치 때 확인
       - ko 확인(2026-11-23, iPhone 14 Pro prod 앱 삭제 후 `646af4f` 재설치): 키체인에 접근 키가 남아 첫 화면은 A 목록. 설정 → 접근 키 → [QR 읽기]에서 처음 권한 대화상자, 본문 "서버 접근 키 QR 코드를 읽을 때 카메라를 씁니다."(ko `locales`) 그대로. 허용 → 카메라 열림 → QR 읽고 저장 뒤 설정 화면 복귀. 남은 것: en 문구(시뮬레이터 언어 English + `xcrun simctl privacy booted reset camera <번들 ID>`로 가능)
+      - en 확인(2026-11-23, iPhone 18 Pro 시뮬레이터 언어 en-US, RN dev 빌드(11/4 DerivedData) + Metro): 딥링크 `futureetp-dev:///settings/access-key` → [Scan QR]에서 본문 "The camera is used to scan the server access key QR code." 그대로
   - [x] `UNAUTHORIZED` 시 어느 화면에서든 B-b로 이동 + 오류 줄 (2026-10-27, D-079)
   - [x] `scripts/` 키 생성·QR 표시(`npm run access-key`, 기존 키는 `--show`에 stdin) (2026-10-27, D-080)
 
