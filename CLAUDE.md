@@ -37,7 +37,7 @@ React Native 기반 Android/iOS 개인용 앱(사용자 본인 1명, 스토어 �
 
 ## 다른 클라이언트 (D-141)
 
-- 같은 서버를 쓰는 앱을 형제 저장소 `../futureETP_FL`(Flutter)·`../futureETP_IOS`(Swift/SwiftUI)·`../futureETP_AOS`(Kotlin)로 따로 만든다. 기능은 RN 앱과 같고, 앱 ID도 같다(한 기기에 한 앱만)
+- 같은 서버를 쓰는 앱을 형제 저장소 `../futureETP_Flutter`(Flutter)·`../futureETP_iOS`(Swift/SwiftUI)·`../futureETP_Android`(Kotlin)로 따로 만든다. 기능은 RN 앱과 같고, 앱 ID도 같다(한 기기에 한 앱만)
 - 이 저장소가 제품·화면·API 계약 문서와 `packages/shared` 스키마의 원본이다. 형제 저장소는 상대경로로 읽기만 하고, 계약은 `packages/shared/contract/`의 JSON Schema 파일(`npm run contract:export`)로 읽는다 (D-142)
 - API·shared 스키마·에러 코드·화면 동작을 바꾸면 세 형제 저장소의 `TODO.md`에 따라갈 항목을 한 줄씩 적는다. 문서는 그대로 두고 RN 앱 코드만 고친 버그 수정·동작 변경(`feat`·`fix`)도 형제 앱에 같은 문제가 있을 수 있으면 적는다
 

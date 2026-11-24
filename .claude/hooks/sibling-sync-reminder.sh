@@ -22,5 +22,5 @@ fi
 list=$(echo "$files" | sed 's/^/  - /')
 msg="커밋 $(git rev-parse --short HEAD) \"$subject\"가 형제 저장소가 따라갈 수 있는 파일을 바꿨다:
 $list
-API·shared 스키마·에러 코드·화면 동작·공통 규칙(레이어·문구 등) 변경이면 ../futureETP_FL·../futureETP_IOS·../futureETP_AOS의 TODO.md \"원본 변경 반영\"에 한 줄씩 적고(필요하면 각 docs/architecture.md도) 각 저장소에서 커밋한다. RN 앱 코드의 버그 수정·동작 변경도 형제 앱에 같은 문제가 있을 수 있으면 적는다. RN 내부 구현만 바뀐 것이면 넘어간다."
+API·shared 스키마·에러 코드·화면 동작·공통 규칙(레이어·문구 등) 변경이면 ../futureETP_Flutter·../futureETP_iOS·../futureETP_Android의 TODO.md \"원본 변경 반영\"에 한 줄씩 적고(필요하면 각 docs/architecture.md도) 각 저장소에서 커밋한다. RN 앱 코드의 버그 수정·동작 변경도 형제 앱에 같은 문제가 있을 수 있으면 적는다. RN 내부 구현만 바뀐 것이면 넘어간다."
 jq -n --arg m "$msg" '{hookSpecificOutput: {hookEventName: "PostToolUse", additionalContext: $m}}'
