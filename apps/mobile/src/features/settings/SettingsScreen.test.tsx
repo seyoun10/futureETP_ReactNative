@@ -32,6 +32,16 @@ jest.mock('expo-updates', () => ({
   },
 }));
 
+// 앱 변형. 테스트마다 prod·dev로 바꾼다(나머지 값은 jest.setup.ts와 같다)
+const mockConfig = { isDevVariant: false };
+jest.mock('@/api/config', () => ({
+  get isDevVariant() {
+    return mockConfig.isDevVariant;
+  },
+  apiUrl: 'http://api.test',
+  devApiToken: null,
+}));
+
 const mockGet = jest.mocked(getSettings);
 const mockPatch = jest.mocked(patchSettings);
 
@@ -47,6 +57,7 @@ const SETTINGS: Settings = {
 };
 
 beforeEach(() => {
+  mockConfig.isDevVariant = false;
   Object.assign(mockUpdates, {
     isEmbeddedLaunch: true,
     updateId: null,
@@ -146,7 +157,7 @@ describe('B 설정', () => {
 describe('B 앱 번들 정보', () => {
   it('클라이언트 RN과 빌드에 내장된 번들이면 내장과 런타임 앞 7자를 보여 준다', async () => {
     await renderSettings();
-    expect(screen.getByText('RN 번들: 빌드에 내장 · 런타임 c2bef25')).toBeOnTheScreen();
+    expect(screen.getByText('RN prod: 빌드에 내장 · 런타임 c2bef25')).toBeOnTheScreen();
   });
 
   it('OTA로 받은 번들이면 발행 시각과 업데이트 ID 앞 8자를 보여 준다', async () => {
@@ -157,8 +168,14 @@ describe('B 앱 번들 정보', () => {
     });
     await renderSettings();
     expect(
-      screen.getByText('RN 번들: 업데이트 11/04 16:03 (01a1a55f) · 런타임 c2bef25'),
+      screen.getByText('RN prod: 업데이트 11/04 16:03 (01a1a55f) · 런타임 c2bef25'),
     ).toBeOnTheScreen();
+  });
+
+  it('dev 변형이면 RN 뒤에 dev를 보여 준다', async () => {
+    mockConfig.isDevVariant = true;
+    await renderSettings();
+    expect(screen.getByText('RN dev: 빌드에 내장 · 런타임 c2bef25')).toBeOnTheScreen();
   });
 });
 
