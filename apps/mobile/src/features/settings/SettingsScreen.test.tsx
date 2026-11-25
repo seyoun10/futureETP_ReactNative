@@ -239,7 +239,11 @@ describe('B rare-level 입력', () => {
 
     await act(() => DeviceEventEmitter.emit('keyboardWillShow', {}));
     expect(screen.queryByRole('button', { name: '완료' })).not.toBeOnTheScreen();
-    await act(() => DeviceEventEmitter.emit('keyboardDidShow', {}));
+    await act(() =>
+      DeviceEventEmitter.emit('keyboardDidShow', {
+        endCoordinates: { screenX: 0, screenY: 500, width: 390, height: 300 },
+      }),
+    );
     await fireEvent.press(screen.getByRole('button', { name: '완료' }));
     expect(dismiss).toHaveBeenCalled();
 

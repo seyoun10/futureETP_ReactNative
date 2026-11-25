@@ -30,6 +30,7 @@ import {
 } from '@/stores/displaySettings';
 import { Icon } from '@/components/Icon';
 import { KeyboardDoneBar } from '@/components/KeyboardDoneBar';
+import { useKeepFocusedInputVisible } from '@/components/useKeepFocusedInputVisible';
 import { colors, fontSize, size, spacing } from '@/theme/tokens';
 import { formatLocalDateTime } from '@/lib/formatDateTime';
 import { tapHaptic } from '@/lib/haptics';
@@ -44,6 +45,7 @@ export function SettingsScreen() {
   const settings = useSettings();
   const update = useUpdateSettings();
   const save = (patch: SettingsPatch) => update.mutate(patch);
+  const { scrollProps, bottomSpacer } = useKeepFocusedInputVisible();
 
   // 표시·이격도차트 설정만 기본값으로 되돌린다. 알림(B-a)과 접근 키는 그대로 둔다
   const reset = () => {
@@ -77,8 +79,9 @@ export function SettingsScreen() {
           }
         />
         {/* rare-level 키패드는 [완료](iOS 키패드 위 줄, Android 키패드의 완료 키)로만 닫는다. 화면을 끌거나 빈 곳을 눌러도
-            닫히지 않고, 키패드가 열린 채 다른 행을 눌러도 그 행이 눌린다 */}
+            닫히지 않고, 키패드가 열린 채 다른 행을 눌러도 그 행이 눌린다. 키패드가 올라오면 입력칸이 가리지 않게 끌어올린다 */}
         <ScrollView
+          {...scrollProps}
           testID="settings-scroll"
           keyboardDismissMode="none"
           keyboardShouldPersistTaps="always"
@@ -107,6 +110,7 @@ export function SettingsScreen() {
             href="/settings/data-sources"
             description={t('settings.dataSourcesDesc')}
           />
+          {bottomSpacer > 0 && <View style={{ height: bottomSpacer }} />}
         </ScrollView>
         <KeyboardDoneBar />
       </KeyboardAvoidingView>
