@@ -214,7 +214,7 @@ function DisparitySection({
   );
 }
 
-// 지금 실행 중인 JS 번들. OTA(EAS Update)를 받았는지 기기에서 바로 보려고 화면 최하단에 둔다
+// 지금 실행 중인 JS 번들. 같은 앱 ID를 쓰는 Flutter·iOS·Android 앱과 기기에서 구분하려고 앞에 RN을 붙인다(D-141). OTA(EAS Update)를 받았는지 기기에서 바로 보려고 화면 최하단에 둔다
 function useBundleText() {
   const { t } = useTranslation();
   const runtime = (Updates.runtimeVersion ?? '-').slice(0, 7);
