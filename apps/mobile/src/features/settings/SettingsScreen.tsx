@@ -76,8 +76,13 @@ export function SettingsScreen() {
             <HeaderIconButton icon="restore" label={t('settings.reset')} onPress={confirmReset} />
           }
         />
-        {/* rare-level 키패드는 화면을 끌거나 [완료]로 닫는다. 키패드가 열린 채 다른 행을 눌러도 그 행이 눌린다 */}
-        <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
+        {/* rare-level 키패드는 [완료](iOS 키패드 위 줄, Android 키패드의 완료 키)로만 닫는다. 화면을 끌거나 빈 곳을 눌러도
+            닫히지 않고, 키패드가 열린 채 다른 행을 눌러도 그 행이 눌린다 */}
+        <ScrollView
+          testID="settings-scroll"
+          keyboardDismissMode="none"
+          keyboardShouldPersistTaps="always"
+        >
           {update.isError && (
             <Text accessibilityRole="alert" style={styles.error}>
               {t('settings.saveFailed', { reason: errorText(t, update.error) })}
