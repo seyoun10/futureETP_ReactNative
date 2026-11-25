@@ -240,8 +240,8 @@ export const en: Translation = {
     alertsDesc: 'Commodity for rare-level alerts and quiet hours',
     accessKeyDesc: 'Secret key for connecting to the server',
     dataSourcesDesc: 'Where prices and data come from',
-    bundleEmbedded: 'RN bundle: built in · runtime {{runtime}}',
-    bundleUpdate: 'RN bundle: update {{time}} ({{id}}) · runtime {{runtime}}',
+    bundleEmbedded: 'RN {{variant}}: built in · runtime {{runtime}}',
+    bundleUpdate: 'RN {{variant}}: update {{time}} ({{id}}) · runtime {{runtime}}',
   },
   dataSources: {
     sections: {
