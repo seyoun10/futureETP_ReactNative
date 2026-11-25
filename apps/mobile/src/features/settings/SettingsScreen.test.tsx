@@ -144,9 +144,9 @@ describe('B 설정', () => {
 });
 
 describe('B 앱 번들 정보', () => {
-  it('빌드에 내장된 번들이면 내장과 런타임 앞 7자를 보여 준다', async () => {
+  it('클라이언트 RN과 빌드에 내장된 번들이면 내장과 런타임 앞 7자를 보여 준다', async () => {
     await renderSettings();
-    expect(screen.getByText('앱 번들: 빌드에 내장 · 런타임 c2bef25')).toBeOnTheScreen();
+    expect(screen.getByText('RN 번들: 빌드에 내장 · 런타임 c2bef25')).toBeOnTheScreen();
   });
 
   it('OTA로 받은 번들이면 발행 시각과 업데이트 ID 앞 8자를 보여 준다', async () => {
@@ -157,7 +157,7 @@ describe('B 앱 번들 정보', () => {
     });
     await renderSettings();
     expect(
-      screen.getByText('앱 번들: 업데이트 11/04 16:03 (01a1a55f) · 런타임 c2bef25'),
+      screen.getByText('RN 번들: 업데이트 11/04 16:03 (01a1a55f) · 런타임 c2bef25'),
     ).toBeOnTheScreen();
   });
 });
