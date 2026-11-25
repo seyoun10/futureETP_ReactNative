@@ -248,6 +248,14 @@ describe('B rare-level 입력', () => {
     dismiss.mockRestore();
   });
 
+  it('키패드는 화면을 끌거나 빈 곳을 눌러도 닫히지 않는다([완료]로만 닫는다)', async () => {
+    await renderSettings();
+    await screen.findByDisplayValue('25');
+    const scroll = screen.getByTestId('settings-scroll');
+    expect(scroll).toHaveProp('keyboardDismissMode', 'none');
+    expect(scroll).toHaveProp('keyboardShouldPersistTaps', 'always');
+  });
+
   it('값이 그대로면 저장하지 않는다', async () => {
     await renderSettings();
     await screen.findByDisplayValue('25');

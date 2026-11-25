@@ -1340,6 +1340,7 @@
   - 서버와 같은 스키마를 써서 앱이 통과시킨 값을 서버가 거절하는 일을 없앤다.
 - 영향: shared가 `rareLevelSchema`를 내보낸다. 네이티브 변경 없음.
 - 보충(2026-10-30, 실기기 피드백): 저장 시점을 칸을 벗어날 때에서 키패드가 닫힐 때(`keyboardDidHide`)로 바꿨다. 칸마다 저장하면 다섯 칸을 차례로 입력하는 중에 정렬된 서버 값이 칸에 들어와 값이 바뀌었다. 키패드는 화면을 끌거나(`keyboardDismissMode="on-drag"`) iOS [완료] 줄(`components/KeyboardDoneBar`, 화면을 `KeyboardAvoidingView`로 감싸 키패드 위에 붙임)로 닫는다. `InputAccessoryView`는 RN 0.88에서 deprecated라 쓰지 않는다.
+- 보충(2026-11-25, 사용자 요청): 키패드는 [완료](iOS 키패드 위 줄, Android 키패드의 완료 키)로만 닫는다. 화면을 끌거나 빈 곳을 눌러 닫히던 동작(`keyboardDismissMode="on-drag"`, `keyboardShouldPersistTaps="handled"`)을 `none`·`always`로 바꿨다. 다섯 칸을 고치다 스크롤만 해도 키패드가 닫히며 저장·검증이 돌던 것을 막는다. Android 시스템 뒤로 가기로 닫히는 것과 다른 화면으로 이동할 때 닫히는 것은 OS 동작이라 그대로다.
 
 
 ## D-084: 앱 실행 때 시간대 PATCH — 루트에서 설정 조회마다 비교, 시간대당 1회
