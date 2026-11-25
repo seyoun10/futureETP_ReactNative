@@ -68,6 +68,8 @@ React Native 기반 Android/iOS 개인용 앱(사용자 본인 1명, 스토어 �
 
 모두 저장소 루트에서 실행한다. workspace 하나만 돌릴 때는 `-w apps/mobile`·`-w apps/server`·`-w packages/shared`. 영역별 명령은 각 rules 파일, 운영·배포·기기 확인 명령은 `docs/ops.md`.
 
+전용 기기: iOS 시뮬레이터 `iPhone 17`(`npx expo run:ios --device "iPhone 17"`), Android 에뮬레이터 `Pixel_API_36`(`npx expo run:android --device Pixel_API_36`). 다른 저장소 기기에는 설치하지 않는다(앱 ID가 같아 덮어쓴다). 전체 배정은 `../CLAUDE.md`
+
 - `npm run check`: 타입 검사 → lint → knip(미사용 코드) → 마이그레이션 drift → 포맷 확인 → 전체 테스트(`test:gate`: 서버·shared는 커버리지 하한 포함) (D-127, D-129). 의존성 audit은 CI에서만
 - `npm run lint` / `npm run format`(파일 수정, 확인만은 `npm run format:check`) / `npm run typecheck` / `npm test`
 - 커버리지 측정: `npm run test:coverage`(서버·shared 하한은 각 `vitest.config.ts`, 앱은 추세만)
