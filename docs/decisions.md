@@ -1341,7 +1341,7 @@
 - 영향: shared가 `rareLevelSchema`를 내보낸다. 네이티브 변경 없음.
 - 보충(2026-10-30, 실기기 피드백): 저장 시점을 칸을 벗어날 때에서 키패드가 닫힐 때(`keyboardDidHide`)로 바꿨다. 칸마다 저장하면 다섯 칸을 차례로 입력하는 중에 정렬된 서버 값이 칸에 들어와 값이 바뀌었다. 키패드는 화면을 끌거나(`keyboardDismissMode="on-drag"`) iOS [완료] 줄(`components/KeyboardDoneBar`, 화면을 `KeyboardAvoidingView`로 감싸 키패드 위에 붙임)로 닫는다. `InputAccessoryView`는 RN 0.88에서 deprecated라 쓰지 않는다.
 - 보충(2026-11-25, 사용자 요청): 키패드는 [완료](iOS 키패드 위 줄, Android 키패드의 완료 키)로만 닫는다. 화면을 끌거나 빈 곳을 눌러 닫히던 동작(`keyboardDismissMode="on-drag"`, `keyboardShouldPersistTaps="handled"`)을 `none`·`always`로 바꿨다. 다섯 칸을 고치다 스크롤만 해도 키패드가 닫히며 저장·검증이 돌던 것을 막는다. Android 시스템 뒤로 가기로 닫히는 것과 다른 화면으로 이동할 때 닫히는 것은 OS 동작이라 그대로다.
-- 보충(2026-11-25, 사용자 요청): 키패드가 올라오면 포커스된 입력칸이 키패드·iOS [완료] 줄에 가리지 않게 ScrollView를 끌어올린다(`components/useKeepFocusedInputVisible`). `keyboardDidShow`에서 입력칸과 ScrollView를 `measureInWindow`로 재고, 보이는 아래(ScrollView 아래와 키패드 위 중 높은 쪽)보다 입력칸 아래 + 48pt(안내 한 줄)가 내려간 만큼 스크롤한다. iOS는 [완료] 줄이 늦게 나타나 ScrollView가 다시 줄므로 `onLayout`에서 한 번 더 맞춘다. Android는 창이 줄지 않는 경우에도 끌어올릴 여유가 있게 키패드가 열린 동안 내용 아래에 키패드 높이만큼 여백을 둔다.
+- 보충(2026-11-25, 사용자 요청): 키패드가 올라오면 포커스된 입력칸이 키패드·iOS [완료] 줄에 가리지 않게 ScrollView를 끌어올린다(`components/useKeepFocusedInputVisible`). `keyboardDidShow`에서 입력칸과 ScrollView를 `measureInWindow`로 재고, 보이는 아래(ScrollView 아래와 키패드 위 중 높은 쪽)보다 입력칸 아래 + 48pt(안내 한 줄)가 내려간 만큼 스크롤한다. iOS는 [완료] 줄이 늦게 나타나 ScrollView가 다시 줄므로 `onLayout`에서 한 번 더 맞춘다. Android는 창이 줄지 않는 경우에도 끌어올릴 여유가 있게 키패드가 열린 동안 내용 아래에 키패드 높이만큼 여백을 둔다. iPhone 14 Pro dev 빌드에서 칸과 안내 줄이 [완료] 줄 위에 보이는 것을 확인했다(2026-11-25, 사용자가 기기에서 직접. 미러링은 키패드를 띄우지 않는다). Android는 아직 확인하지 않았다.
 
 
 ## D-084: 앱 실행 때 시간대 PATCH — 루트에서 설정 조회마다 비교, 시간대당 1회
