@@ -53,6 +53,7 @@ React Native 기반 Android/iOS 개인용 앱(사용자 본인 1명, 스토어 �
 ## Conventions
 
 - commit message: Conventional Commits ('feat:', 'fix:', 'chore:')
+- PR·머지: main은 보호돼 있어 브랜치 → PR → `check`·`server-image`·`audit` 통과 → squash 머지로만 반영한다. squash 커밋 제목이 PR 제목이므로 PR 제목을 커밋 메시지 규칙대로 쓴다 (D-145)
 - 커밋 전 `npm run check` 통과 (D-038). pre-commit hook은 lint·format만 보므로 대신하지 못한다. 직접 실행하거나 `test-runner`에 맡기고, 통과를 확인한 뒤 커밋한다
 - `fix:` 커밋은 회귀 테스트를 함께 넣는다. 시각 조정만 예외로, 기기 확인으로 대신한다
 - ESLint 9(루트 설정 하나) + Prettier. `*.md`는 Prettier 포맷 제외 (D-038, D-054)

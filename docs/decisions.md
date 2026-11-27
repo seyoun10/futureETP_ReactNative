@@ -2106,3 +2106,16 @@
 - 결정: (b). 시각 있는 일정은 `at`(시장 현지)을, CLOSED는 정규 개장 시각(CME 전날 17:00 CT, KRX 09:00 KST, NYSE 09:30 ET)을 기기 로컬로 바꾼 날짜 칸에 두고, 문구 시각은 로컬 `HH:mm`으로 시간대 표기 없이 쓴다. 목록은 로컬 시각순(휴장은 정규 개장 시각, 같은 시각은 시장 순)이다. 휴일 이름은 원문 그대로다. 시장 날짜가 하루 앞뒤로 움직이므로 앱은 `GET /v1/calendar` 범위를 앞뒤 하루씩 넓혀 받고, 화면 3개월 밖 연도의 `missing`은 안내하지 않는다. API·DB는 그대로 시장 현지 값이다.
 - 근거: 사용자 결정. 한 화면의 날짜 기준을 하나로 맞춘다. 개장 시각을 쓰면 "그 시장이 열렸을 순간"이 로컬로 어느 날인지가 된다(한국 기준 CME·NYSE 휴장일은 같은 날, CME 중간 정지·NYSE 조기 마감은 다음 날).
 - 영향: 앱 `features/calendar/localSchedule.ts`(신규)·`CalendarScreen.tsx`, `calendar.kinds` 문구(`{{tz}}` 제거, `calendar.timeZones` 삭제), screens.md A-a. 한 로컬 날짜에 같은 시장 일정이 둘 올 수 있다(한국 기준 CME 12/24 조기 마감과 12/25 휴장이 모두 12/25).
+
+## D-145: 4개 저장소 공통 PR·머지 규칙 — squash만, main은 CI 통과로만 반영
+- 날짜: 2026-11-27
+- 상태: 확정 (사용자 결정)
+- 맥락: 클라이언트 3개는 PR을 merge commit으로 합쳐 main에 `Merge pull request #n` 커밋이 쌓였고, 이 저장소는 main에 직접 push했다. 머지 방식은 셋 다 허용, 머지 후 브랜치 삭제·auto-merge도 저장소마다 달랐다. 이 저장소 main만 보호가 없어 CI 실패 커밋이 그대로 들어갈 수 있었다.
+- 선택지: 머지 방식 (a) squash만 (b) merge commit만 (c) rebase만. 이 저장소 보호 (d) 클라이언트와 같게 건다 (e) 직접 push 유지
+- 결정: (a)+(d). 4개 저장소 GitHub 설정을 같게 맞춘다.
+  - 머지: squash만 허용. 커밋 제목은 PR 제목, 본문은 브랜치 커밋 메시지 모음(`PR_TITLE`·`COMMIT_MESSAGES`, `Co-Authored-By` 줄이 남는다). 그래서 PR 제목이 Conventional Commits + 결정 번호 형식이어야 한다
+  - 머지 후 브랜치 자동 삭제, auto-merge 허용, PR의 브랜치 업데이트 버튼 허용
+  - main 보호(classic branch protection): 필수 status check(이 저장소 `check`·`server-image`·`audit`, 클라이언트 `check`), 관리자 포함, force push·삭제 금지. 리뷰 승인·최신 main 필수(strict)는 1인 저장소라 걸지 않는다
+  - 모든 workflow `permissions: contents: read`, 클라이언트도 GitHub Actions dependabot(D-134와 같은 월간 묶음)
+- 근거: 사용자 결정. PR 하나가 main 커밋 하나라 결정 번호가 붙은 제목만으로 이력을 읽을 수 있고 되돌리기도 커밋 하나다. 보호를 걸면 main은 CI가 통과한 커밋만 갖는다.
+- 영향: GitHub 저장소 설정 4곳, 4개 저장소 `.github/workflows/check.yml`·`.github/dependabot.yml`·`CLAUDE.md` Conventions, `../CLAUDE.md`. 이 저장소도 앞으로 브랜치 → PR로 반영한다(`npm run ci:wait`은 PR head 커밋에도 그대로 쓴다).
